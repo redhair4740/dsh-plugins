@@ -1,0 +1,11 @@
+# Thinking Levels bundle: one thinking level per model.
+#
+# Each entry names a provider route (optional), a model id, and the level that
+# model should start on when a Session selects it. The level must be one the
+# model advertises; an unsupported value is ignored with a warning instead of
+# breaking model selection.
+- insert:
+    - id: thinking-levels
+      name: '@redhair4740/dsh-thinking-levels'
+      config:
+        models: []

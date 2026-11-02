@@ -1,0 +1,38 @@
+{
+  "name": "@redhair4740/dsh-thinking-levels",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Per-model thinking level (reasoning effort) for DeepSeek Harness model selection",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/redhair4740/dsh-plugins.git",
+    "directory": "dsh-thinking-levels"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-settings-general"
+      ]
+    }
+  },
+  "license": "MIT"
+}

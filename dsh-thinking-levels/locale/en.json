@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Thinking Levels",
+    "description": "Sets the thinking level each model starts on, so selecting that model immediately uses your level."
+  }
+}

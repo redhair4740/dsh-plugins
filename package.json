@@ -1,0 +1,8 @@
+{
+  "name": "dsh-plugins",
+  "private": true,
+  "description": "DeepSeek Harness 插件合集（单仓多包）",
+  "workspaces": [
+    "dsh-*"
+  ]
+}
