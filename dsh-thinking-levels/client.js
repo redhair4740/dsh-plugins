@@ -12,12 +12,15 @@ window.__ModuleLoader__.load({
 	id: '@redhair4740/dsh-thinking-levels',
 	factory(require) {
 		const React = require('react')
+		const primitives = require('@deepseek-ai/dsh-client-ui-primitives')
 		const h = React.createElement
 		const NS = 'thinking-levels'
 		const CATALOG = '/dsh-thinking-levels/catalog'
 		const SAVE = '/dsh-thinking-levels/set'
 		/** Sentinel for "no override, keep the model's own default". */
 		const FOLLOW = ''
+		/** Menu row for {@link FOLLOW}; a distinct id keeps it apart from any effort id. */
+		const FOLLOW_ITEM = '\u0000follow'
 
 		const zh = {
 			nav: '思考等级',
@@ -64,7 +67,6 @@ window.__ModuleLoader__.load({
 			copy: 'tl-copy',
 			name: 'tl-name',
 			meta: 'tl-meta',
-			select: 'tl-select',
 			note: 'tl-note',
 		}
 
@@ -83,10 +85,6 @@ window.__ModuleLoader__.load({
 .tl-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px;line-height:20px}
 .tl-meta{margin-top:2px;color:var(--dsw-alias-label-tertiary);font-size:12px;line-height:18px}
 .tl-meta[data-tone=warn]{color:var(--dsw-alias-state-warn-primary)}
-.tl-select{box-sizing:border-box;flex:none;height:32px;min-width:136px;max-width:220px;padding:0 8px;border:.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-md);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font-family:inherit;font-size:13px;line-height:20px;cursor:pointer}
-.tl-select:hover:enabled{background:var(--dsw-alias-interactive-bg-hover)}
-.tl-select:disabled{cursor:default;color:var(--dsw-alias-label-tertiary)}
-.tl-select:focus-visible{outline:2px solid var(--dsw-focus-ring-color,var(--dsw-alias-brand-primary));outline-offset:1px}
 .tl-note{margin:12px 0 0;color:var(--dsw-alias-label-tertiary);font-size:12px;line-height:18px}
 `
 
@@ -115,6 +113,46 @@ window.__ModuleLoader__.load({
 			if (effort === null) return undefined
 			const level = model.efforts.find((candidate) => candidate.id === effort)
 			return level === undefined ? effort : level.name
+		}
+
+		/**
+		 * The dropdown design-system controls use: the shared `Menu` list on a
+		 * `Button` anchor, so the row matches the shell's own settings selectors
+		 * (border, radius, hover, focus ring and keyboard walk all come from the
+		 * primitives rather than from this plugin's stylesheet).
+		 * @param props - menu items, the selected id, disabled state, and the
+		 * accessible name of the anchor.
+		 * @returns {import('react').ReactElement} the anchored menu.
+		 */
+		function LevelPicker({ ariaLabel, items, value, disabled, onSelect }) {
+			const [open, setOpen] = React.useState(false)
+			const label = items.find((item) => item.id === value)?.label ?? value
+
+			return h(primitives.Menu, {
+				open,
+				onClose: () => setOpen(false),
+				items,
+				selectedId: value,
+				onSelect: (id) => {
+					setOpen(false)
+					if (id !== value) onSelect(id)
+				},
+				align: 'end',
+				portal: true,
+				anchor: h(primitives.Button, {
+					variant: 'outline',
+					size: 'sm',
+					disabled,
+					'aria-label': ariaLabel,
+					'aria-haspopup': 'menu',
+					'aria-expanded': open,
+					onClick: () => setOpen((current) => !current),
+					children: [
+						h('span', { key: 'label' }, label),
+						h(primitives.IconChevronDownOutlineRegular, { size: 16, key: 'chevron' }),
+					],
+				}),
+			})
 		}
 
 		/**
@@ -220,20 +258,19 @@ window.__ModuleLoader__.load({
 									? tt('stale', { level: model.configured })
 									: effectiveName === null ? tt('follow') : tt('effective', { level: effectiveName })),
 							]),
-							h('select', {
-								className: style.select,
-								key: 'select',
-								value,
+							h(LevelPicker, {
+								key: 'picker',
+								ariaLabel: tt('selectAria', { model: model.name }),
 								disabled: pending === key,
-								'aria-label': tt('selectAria', { model: model.name }),
-								onChange: (event) => {
-									const next = event.currentTarget.value
-									if (next !== value) void choose(provider.id, model.id, next)
+								value: value === FOLLOW ? FOLLOW_ITEM : value,
+								items: [
+									{ id: FOLLOW_ITEM, label: tt('follow') },
+									...model.efforts.map((level) => ({ id: level.id, label: level.name })),
+								],
+								onSelect: (id) => {
+									void choose(provider.id, model.id, id === FOLLOW_ITEM ? FOLLOW : id)
 								},
-							}, [
-								h('option', { value: FOLLOW, key: 'follow' }, tt('follow')),
-								...model.efforts.map((level) => h('option', { value: level.id, key: level.id }, level.name)),
-							]),
+							}),
 						])
 					}),
 				]))

@@ -71,6 +71,7 @@ plugin_manager install_bundle  target: /home/yo/projects/dsh-plugins/dsh-thinkin
 | `GET /dsh-thinking-levels/catalog` | 设置页读取：每个模型支持的等级、当前生效等级、覆盖值 |
 | `POST /dsh-thinking-levels/set` | 设置页写入：经 `ctx.configEditor` 落到 profile patch |
 | 设置导航图标（客户端） | 外壳按 section id 硬编码图标（只有 `account`/`models`/`agent-presets`/`plugins`/`archived-sessions` 有专属字形，其余一律齿轮），slot 契约没有图标字段；客户端把本行的齿轮换成 [Lucide `brain`](https://lucide.dev) 字形（ISC，署名见仓库根 `THIRD-PARTY-NOTICES.md`） |
+| 等级下拉框（客户端） | 用共享原语 `@deepseek-ai/dsh-client-ui-primitives` 的 `Menu` + `Button` + `IconChevronDownOutlineRegular`，不再自绘 `<select>`；边框、圆角、悬停、焦点环与键盘走位都由设计系统提供 |
 
 所有 wrapper 都在 `ctx.effect` 中安装，卸载即还原。插件激活后会后台预热一次模型能力（填充“支持哪些等级”），让新会话路径也能安全替换。HTTP 路由经 `ctx.get('webServer')` 注册；没有 Web 载体的部署只失去设置页，思考等级照常生效。
 
