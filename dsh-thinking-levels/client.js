@@ -261,6 +261,64 @@ window.__ModuleLoader__.load({
 			])
 		}
 
+		/**
+		 * The Settings shell picks a nav glyph from a fixed map keyed by section
+		 * id (`account`, `models`, `agent-presets`, `plugins`,
+		 * `archived-sessions`) and paints the plain settings gear for every other
+		 * section; the slot contract carries no icon. So our row's gear is
+		 * swapped for a brain glyph in the DOM, each time the shell paints it.
+		 */
+		const NAV_LABELS = [zh.nav, en.nav]
+
+		/** Brain outline on the 24-unit grid the shell's own nav icons use. */
+		const BRAIN_PATHS = [
+			'M12 4C10.1 4 8.5 5.2 7.9 6.9C6.4 7.2 5.3 8.5 5.3 10C5.3 10.6 5.5 11.2 5.8 11.7C5.2 12.2 4.8 13 4.8 13.9C4.8 15.5 6.1 16.8 7.7 16.8C8.2 16.8 8.7 16.7 9.1 16.4C9.5 17.7 10.7 18.7 12 18.7Z',
+			'M12 4C13.9 4 15.5 5.2 16.1 6.9C17.6 7.2 18.7 8.5 18.7 10C18.7 10.6 18.5 11.2 18.2 11.7C18.8 12.2 19.2 13 19.2 13.9C19.2 15.5 17.9 16.8 16.3 16.8C15.8 16.8 15.3 16.7 14.9 16.4C14.5 17.7 13.3 18.7 12 18.7Z',
+			'M9.8 8.6C10.6 8.9 11.1 9.6 11.3 10.4',
+			'M14.2 8.6C13.4 8.9 12.9 9.6 12.7 10.4',
+			'M8.6 13.9C9.2 14.1 9.7 14.6 9.9 15.3',
+			'M15.4 13.9C14.8 14.1 14.3 14.6 14.1 15.3',
+		]
+
+		/** The brain glyph, sized like the shell's 16px nav icons. */
+		function brainIcon() {
+			const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+			svg.setAttribute('viewBox', '0 0 24 24')
+			svg.setAttribute('width', '16')
+			svg.setAttribute('height', '16')
+			svg.setAttribute('fill', 'none')
+			svg.setAttribute('stroke', 'currentColor')
+			svg.setAttribute('stroke-width', '1.6')
+			svg.setAttribute('stroke-linecap', 'round')
+			svg.setAttribute('stroke-linejoin', 'round')
+			svg.setAttribute('aria-hidden', 'true')
+			svg.setAttribute('data-thinking-levels-icon', '')
+			svg.style.flex = 'none'
+			for (const d of BRAIN_PATHS) {
+				const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+				path.setAttribute('d', d)
+				svg.append(path)
+			}
+			return svg
+		}
+
+		/**
+		 * Put the brain on our section's nav row, once the shell has painted a
+		 * gear there. Matching is by rendered label: the row is a two-child
+		 * button (glyph + label span) rebuilt on every open or locale change.
+		 * @returns {void}
+		 */
+		function syncNavIcon() {
+			for (const cell of document.querySelectorAll('nav button')) {
+				const [icon, label] = cell.children
+				if (cell.children.length !== 2 || icon === undefined || label === undefined) continue
+				if (icon.tagName.toLowerCase() !== 'svg' || label.tagName.toLowerCase() !== 'span') continue
+				if (!NAV_LABELS.includes((label.textContent ?? '').trim())) continue
+				if (icon.hasAttribute('data-thinking-levels-icon')) continue
+				cell.replaceChild(brainIcon(), icon)
+			}
+		}
+
 		return {
 			inject: ['slots', 'locale'],
 			/**
@@ -270,6 +328,23 @@ window.__ModuleLoader__.load({
 			 */
 			apply(ctx) {
 				ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'thinking-levels: dictionaries')
+				ctx.effect(() => {
+					if (typeof MutationObserver === 'undefined') return undefined
+					let scheduled = false
+					const schedule = () => {
+						if (scheduled) return
+						scheduled = true
+						requestAnimationFrame(() => {
+							scheduled = false
+							// The shell only exists while Settings is open; skip the walk otherwise.
+							if (document.querySelector('nav') !== null) syncNavIcon()
+						})
+					}
+					const observer = new MutationObserver(schedule)
+					observer.observe(document.body, { childList: true, subtree: true })
+					syncNavIcon()
+					return () => observer.disconnect()
+				}, 'thinking-levels: settings-nav icon')
 				const t = ctx.locale.bind(NS)
 				ctx.slots.inject('settings.section', () => ctx.slots.register({
 					name: 'settings.section',
