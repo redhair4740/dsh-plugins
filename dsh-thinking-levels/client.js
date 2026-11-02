@@ -270,14 +270,20 @@ window.__ModuleLoader__.load({
 		 */
 		const NAV_LABELS = [zh.nav, en.nav]
 
-		/** Brain outline on the 24-unit grid the shell's own nav icons use. */
+		/**
+		 * Lucide `brain` (lucide-static 1.66.0, ISC) — the same 24-unit grid and
+		 * icon geometry the shell's own nav glyphs use. Licence text:
+		 * THIRD-PARTY-NOTICES.md at the dsh-plugins repository root.
+		 */
 		const BRAIN_PATHS = [
-			'M12 4C10.1 4 8.5 5.2 7.9 6.9C6.4 7.2 5.3 8.5 5.3 10C5.3 10.6 5.5 11.2 5.8 11.7C5.2 12.2 4.8 13 4.8 13.9C4.8 15.5 6.1 16.8 7.7 16.8C8.2 16.8 8.7 16.7 9.1 16.4C9.5 17.7 10.7 18.7 12 18.7Z',
-			'M12 4C13.9 4 15.5 5.2 16.1 6.9C17.6 7.2 18.7 8.5 18.7 10C18.7 10.6 18.5 11.2 18.2 11.7C18.8 12.2 19.2 13 19.2 13.9C19.2 15.5 17.9 16.8 16.3 16.8C15.8 16.8 15.3 16.7 14.9 16.4C14.5 17.7 13.3 18.7 12 18.7Z',
-			'M9.8 8.6C10.6 8.9 11.1 9.6 11.3 10.4',
-			'M14.2 8.6C13.4 8.9 12.9 9.6 12.7 10.4',
-			'M8.6 13.9C9.2 14.1 9.7 14.6 9.9 15.3',
-			'M15.4 13.9C14.8 14.1 14.3 14.6 14.1 15.3',
+			'M12 18V5',
+			'M15 13a4.17 4.17 0 01-3-4 4.17 4.17 0 01-3 4',
+			'M17.707 6.294A3 3 0 1012 5a3 3 0 10-5.707 1.294',
+			'M17.996 5.125a4 4 0 012.526 5.77',
+			'M18 18a4 4 0 002-7.465',
+			'M19.967 17.482a4 4 0 11-7.967.517 4 4 0 11-7.967-.517',
+			'M6 18a4 4 0 01-2-7.465',
+			'M6.004 5.125a4 4 0 00-2.526 5.77',
 		]
 
 		/** The brain glyph, sized like the shell's 16px nav icons. */
@@ -288,7 +294,7 @@ window.__ModuleLoader__.load({
 			svg.setAttribute('height', '16')
 			svg.setAttribute('fill', 'none')
 			svg.setAttribute('stroke', 'currentColor')
-			svg.setAttribute('stroke-width', '1.6')
+			svg.setAttribute('stroke-width', '2')
 			svg.setAttribute('stroke-linecap', 'round')
 			svg.setAttribute('stroke-linejoin', 'round')
 			svg.setAttribute('aria-hidden', 'true')
